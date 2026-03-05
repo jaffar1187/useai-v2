@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "bin": {
-    "useai-daemon": "./dist/bin.js"
+    "useai-daemon": "./dist/app.js"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch --preserveWatchOutput",
-    "start": "node --watch dist/bin.js",
+    "start": "node --env-file=.env --watch dist/app.js",
+    "start:prod": "node --env-file=.env.production dist/app.js",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },

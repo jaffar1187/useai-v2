@@ -1,3 +1,4 @@
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { sessionsRoutes } from "./routes/sessions.js";
@@ -6,7 +7,7 @@ import { configRoutes } from "./routes/config.js";
 import { healthRoutes } from "./routes/health.js";
 import { mcpRoutes, sweepOrphanSessions } from "./routes/mcp.js";
 import { ensureDir } from "@useai/storage";
-import { ACTIVE_DIR, SEALED_DIR } from "@useai/storage/paths";
+import { ACTIVE_DIR, SEALED_DIR, DAEMON_PORT, DAEMON_HOST } from "@useai/storage/paths";
 
 export function createApp(): Hono {
   const app = new Hono();
@@ -38,3 +39,23 @@ export function startOrphanSweep(intervalMs: number = 15 * 60 * 1000): NodeJS.Ti
     }
   }, intervalMs);
 }
+
+export async function startDaemon(): Promise<void> {
+  await initDataDirs();
+
+  const app = createApp();
+
+  serve(
+    { fetch: app.fetch, port: DAEMON_PORT, hostname: DAEMON_HOST },
+    (info) => {
+      console.log(`useai daemon running at http://${info.address}:${info.port}`);
+      console.log(`MCP endpoint: http://${info.address}:${info.port}/mcp`);
+      console.log(`Dashboard API: http://${info.address}:${info.port}/api/local/`);
+    },
+  );
+
+  startOrphanSweep();
+}
+
+// Run directly
+startDaemon();
