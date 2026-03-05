@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch --preserveWatchOutput",
-    "start": "node --env-file=.env --watch dist/app.js",
-    "start:prod": "node --env-file=.env.production dist/app.js",
+    "start": "node --env-file-if-exists=.env --watch dist/app.js",
+    "start:prod": "node --env-file-if-exists=.env.production dist/app.js",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },
