@@ -4,15 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./paths": "./dist/paths.js",
-    "./sessions": "./dist/sessions.js",
-    "./config": "./dist/config.js",
-    "./keystore": "./dist/keystore.js"
+    ".": { "development": "./src/index.ts", "default": "./dist/index.js" },
+    "./paths": { "development": "./src/paths.ts", "default": "./dist/paths.js" },
+    "./sessions": { "development": "./src/sessions.ts", "default": "./dist/sessions.js" },
+    "./config": { "development": "./src/config.ts", "default": "./dist/config.js" },
+    "./keystore": { "development": "./src/keystore.ts", "default": "./dist/keystore.js" }
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },

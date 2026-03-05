@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/bin.ts",
+    "dev": "tsx watch --conditions development src/bin.ts",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/bin.ts",
+    "dev": "tsx watch --conditions development src/bin.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {
