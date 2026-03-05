@@ -9,5 +9,7 @@
     "**/node_modules/**": true,
     "**/dist/**": true
   },
-  "typescript.disableAutomaticTypeAcquisition": true
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.nodePath": "node",
+  "typescript.preferences.includePackageJsonAutoImports": "on"
 }

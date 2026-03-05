@@ -1,14 +1,8 @@
 {
-  "files": [],
-  "references": [
-    { "path": "packages/types" },
-    { "path": "packages/crypto" },
-    { "path": "packages/storage" },
-    { "path": "packages/scoring" },
-    { "path": "packages/mcp-server" },
-    { "path": "packages/daemon" },
-    { "path": "packages/dashboard" },
-    { "path": "packages/tool-installer" },
-    { "path": "packages/cli" }
-  ]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["packages/*/src"],
+  "exclude": ["node_modules", "**/node_modules", "**/dist"]
 }
