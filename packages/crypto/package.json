@@ -4,13 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": { "development": "./src/index.ts", "default": "./dist/index.js" },
-    "./chain": { "development": "./src/chain.ts", "default": "./dist/chain.js" },
-    "./keystore": { "development": "./src/keystore.ts", "default": "./dist/keystore.js" },
-    "./verify": { "development": "./src/verify.ts", "default": "./dist/verify.js" }
+    ".": "./dist/index.js",
+    "./chain": "./dist/chain.js",
+    "./keystore": "./dist/keystore.js",
+    "./verify": "./dist/verify.js"
   },
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },

@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": { "development": "./src/index.ts", "default": "./dist/index.js" }
+    ".": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
     "test": "vitest run",
     "clean": "rm -rf dist"
   },

@@ -4,15 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": { "development": "./src/index.ts", "default": "./dist/index.js" },
-    "./session": { "development": "./src/session.ts", "default": "./dist/session.js" },
-    "./config": { "development": "./src/config.ts", "default": "./dist/config.js" },
-    "./chain": { "development": "./src/chain.ts", "default": "./dist/chain.js" },
-    "./api": { "development": "./src/api.ts", "default": "./dist/api.js" },
-    "./tools": { "development": "./src/tools.ts", "default": "./dist/tools.js" }
+    ".": "./dist/index.js",
+    "./session": "./dist/session.js",
+    "./config": "./dist/config.js",
+    "./chain": "./dist/chain.js",
+    "./api": "./dist/api.js",
+    "./tools": "./dist/tools.js"
   },
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
     "clean": "rm -rf dist"
   },
   "dependencies": {
