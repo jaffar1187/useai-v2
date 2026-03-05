@@ -31,10 +31,12 @@ export function verifyChain(
   publicKey: Buffer,
 ): { valid: boolean; brokenAt?: number } {
   for (let i = 0; i < records.length; i++) {
-    if (!verifyRecord(records[i], publicKey)) {
+    const record = records[i];
+    if (!record || !verifyRecord(record, publicKey)) {
       return { valid: false, brokenAt: i };
     }
-    if (i > 0 && records[i].prevHash !== records[i - 1].hash) {
+    const prev = records[i - 1];
+    if (i > 0 && prev && record.prevHash !== prev.hash) {
       return { valid: false, brokenAt: i };
     }
   }

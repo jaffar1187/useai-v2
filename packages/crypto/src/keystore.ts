@@ -9,7 +9,7 @@ import { hostname } from "node:os";
 import type { Keystore } from "@useai/types";
 
 function deriveEncryptionKey(): Buffer {
-  const material = `useai-${hostname()}-${process.env.USER ?? "default"}`;
+  const material = `useai-${hostname()}-${process.env["USER"] ?? "default"}`;
   return createHash("sha256").update(material).digest();
 }
 

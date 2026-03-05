@@ -9,7 +9,7 @@ export function computeSpaceScore(params: {
   taskType: string;
   completedSuccessfully: boolean;
 }): SessionScore {
-  const { durationMs, taskType, completedSuccessfully } = params;
+  const { durationMs, completedSuccessfully } = params;
 
   const satisfaction = completedSuccessfully ? 0.8 : 0.3;
   const performance = computePerformance(durationMs, completedSuccessfully);
