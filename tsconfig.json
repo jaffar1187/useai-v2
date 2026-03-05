@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/types" },
+    { "path": "packages/crypto" },
+    { "path": "packages/storage" },
+    { "path": "packages/scoring" },
+    { "path": "packages/mcp-server" },
+    { "path": "packages/daemon" },
+    { "path": "packages/dashboard" },
+    { "path": "packages/tool-installer" },
+    { "path": "packages/cli" }
+  ]
+}
