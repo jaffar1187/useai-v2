@@ -1,0 +1,32 @@
+{
+  "name": "@useai/daemon",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "useai-daemon": "./dist/bin.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/bin.ts",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@useai/types": "workspace:*",
+    "@useai/storage": "workspace:*",
+    "@useai/mcp-server": "workspace:*",
+    "@useai/scoring": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "vitest": "^3.0.0"
+  }
+}
