@@ -1,21 +1,37 @@
-import type { SessionScore } from "@useai/types";
+import type { SessionScore, SessionEvaluation } from "@useai/types";
 
 /**
  * SPACE framework scoring for individual sessions.
  * Dimensions: Satisfaction, Performance, Activity, Communication, Efficiency
+ * When an evaluation object is provided, its scores feed directly into the components.
  */
 export function computeSpaceScore(params: {
   durationMs: number;
   taskType: string;
-  completedSuccessfully: boolean;
+  evaluation?: SessionEvaluation;
 }): SessionScore {
-  const { durationMs, completedSuccessfully } = params;
+  const { durationMs, evaluation } = params;
 
-  const satisfaction = completedSuccessfully ? 0.8 : 0.3;
-  const performance = computePerformance(durationMs, completedSuccessfully);
+  const outcomeMap = { completed: 1.0, partial: 0.6, blocked: 0.3, abandoned: 0.2 };
+  const completed = !evaluation || evaluation.task_outcome === "completed";
+  const partial = evaluation?.task_outcome === "partial";
+
+  const satisfaction = evaluation
+    ? (outcomeMap[evaluation.task_outcome] ?? 0.5)
+    : (completed ? 0.8 : 0.3);
+
+  const performance = computePerformance(durationMs, completed || partial);
   const activity = Math.min(1, durationMs / (60 * 60 * 1000));
-  const communication = 0.5; // placeholder — needs prompt analysis
-  const efficiency = computePerformance(durationMs, completedSuccessfully);
+
+  // Communication: derived from prompt_quality + context_provided (each 1-5 → 0-1)
+  const communication = evaluation
+    ? ((evaluation.prompt_quality + evaluation.context_provided) / 10)
+    : 0.5;
+
+  // Efficiency: derived from independence_level + scope_quality (each 1-5 → 0-1)
+  const efficiency = evaluation
+    ? ((evaluation.independence_level + evaluation.scope_quality) / 10)
+    : computePerformance(durationMs, completed);
 
   const components: Record<string, number> = {
     satisfaction,
