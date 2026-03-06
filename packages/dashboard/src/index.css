@@ -1,9 +1,224 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════ *\
+ *  UseAI Design Tokens                                                       *
+\* ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Text ── */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* ── Accent (lime neon) ── */
+  --accent: #b4f82c;
+  --accent-bright: #d4fc6e;
+  --accent-dim: #4d7c0f;
+  --accent-rgb: 180, 248, 44;
+
+  /* ── Semantic ── */
+  --success: #b4f82c;
+  --error: #ef4444;
+
+  /* ── Streak (amber) ── */
+  --streak: #f59e0b;
+  --streak-bg: rgba(245, 158, 11, 0.06);
+  --streak-border: rgba(245, 158, 11, 0.2);
+  --streak-muted: rgba(245, 158, 11, 0.5);
+
+  /* ── History / time-travel (blue) ── */
+  --history: #60a5fa;
+  --history-rgb: 96, 165, 250;
+
+  /* ── Surfaces ── */
+  --bg-base: #040405;
+  --bg-surface-1: #0e0e11;
+  --bg-surface-2: #18181b;
+  --bg-surface-3: #27272a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(var(--accent-rgb), 0.3);
+  --glass-bg: rgba(14, 14, 17, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.05);
+
+  /* ── Effects ── */
+  --grid-color: rgba(255, 255, 255, 0.08);
+  --glow-opacity: 0.15;
+  --glow-blue: rgba(59, 130, 246, 0.15);
+  --shadow-glow: rgba(var(--accent-rgb), 0.1);
+  --accent-alpha: rgba(var(--accent-rgb), 0.05);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --text-muted: #5f6068;
+
+    --accent: #65a30d;
+    --accent-bright: #84cc16;
+    --accent-dim: #f7fee7;
+    --accent-rgb: 101, 163, 13;
+
+    --success: #65a30d;
+    --error: #dc2626;
+
+    --streak: #b45309;
+    --streak-bg: rgba(180, 83, 9, 0.06);
+    --streak-border: rgba(180, 83, 9, 0.2);
+    --streak-muted: rgba(180, 83, 9, 0.5);
+
+    --history: #2563eb;
+    --history-rgb: 37, 99, 235;
+
+    --bg-base: #fafafa;
+    --bg-surface-1: #ffffff;
+    --bg-surface-2: #f4f4f5;
+    --bg-surface-3: #e4e4e7;
+    --border: #e4e4e7;
+    --border-accent: rgba(var(--accent-rgb), 0.4);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.05);
+
+    --grid-color: rgba(0, 0, 0, 0.04);
+    --glow-opacity: 0.25;
+    --glow-blue: rgba(59, 130, 246, 0.25);
+    --shadow-glow: rgba(0, 0, 0, 0.08);
+    --accent-alpha: rgba(var(--accent-rgb), 0.15);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ *\
+ *  Tailwind v4 Theme Mappings                                                *
+\* ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Backgrounds */
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface-1: var(--bg-surface-1);
+  --color-bg-surface-2: var(--bg-surface-2);
+  --color-bg-surface-3: var(--bg-surface-3);
+
+  /* Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-dim: var(--accent-dim);
+
+  /* Semantic */
+  --color-success: var(--success);
+  --color-error: var(--error);
+
+  /* Streak */
+  --color-streak: var(--streak);
+  --color-streak-bg: var(--streak-bg);
+  --color-streak-border: var(--streak-border);
+  --color-streak-muted: var(--streak-muted);
+
+  /* History */
+  --color-history: var(--history);
+
+  /* Borders */
+  --color-border: var(--border);
+  --color-border-accent: var(--border-accent);
+
+  /* Glass */
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+
+  /* Static palette */
+  --color-purple: #8b5cf6;
+  --color-blue: #3b82f6;
+  --color-emerald: #34d399;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+
+  /* Easing */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ *\
+ *  Global Styles                                                             *
+\* ═══════════════════════════════════════════════════════════════════════════ */
+
+::selection {
+  background-color: rgba(var(--accent-rgb), 0.3);
+  color: var(--accent-bright);
+}
+
 body {
+  font-family: var(--font-sans);
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
   margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #0a0a0a;
-  color: #fafafa;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-surface-3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ *\
+ *  Utility Classes                                                           *
+\* ═══════════════════════════════════════════════════════════════════════════ */
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4);
 }
