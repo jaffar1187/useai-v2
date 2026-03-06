@@ -17,8 +17,8 @@ export class SessionState {
   private _prompt: string | null = null;
   private _promptImages: Array<{ type: "image"; description: string }> | null = null;
 
-  constructor(sessionId?: string) {
-    this.sessionId = sessionId ?? `ses_${randomUUID()}`;
+  constructor() {
+    this.sessionId = `ses_${randomUUID()}`;
   }
 
   get client(): string { return this._client; }

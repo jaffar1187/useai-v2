@@ -62,7 +62,7 @@ export async function getAllSessions(): Promise<Session[]> {
 
 export async function saveSession(session: Session): Promise<void> {
   const sessions = await getAllSessions();
-  const idx = sessions.findIndex((s) => s.id === session.id);
+  const idx = sessions.findIndex((s) => s.sessionId === session.sessionId);
   if (idx >= 0) {
     sessions[idx] = session;
   } else {
@@ -73,7 +73,7 @@ export async function saveSession(session: Session): Promise<void> {
 
 export async function deleteSession(sessionId: string): Promise<void> {
   const sessions = await getAllSessions();
-  const filtered = sessions.filter((s) => s.id !== sessionId);
+  const filtered = sessions.filter((s) => s.sessionId !== sessionId);
   await writeJson(SESSIONS_FILE, filtered);
 }
 

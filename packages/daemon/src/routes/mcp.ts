@@ -7,6 +7,8 @@ export { sweepOrphanSessions, getActiveSessionCount } from "./session-store.js";
 export const mcpRoutes = new Hono();
 
 mcpRoutes.all("/", async (c) => {
+  //Transport needs data to be in bits, untouched/parsed.
+  //uses c.req.raw.header to get mcp-session-id, but does not consume anything like c.req.json(). so reading header like this is safe, as the bits are still untouched.
   const sessionId = c.req.header("mcp-session-id");
 
   // Existing session — route to its transport
@@ -23,5 +25,6 @@ mcpRoutes.all("/", async (c) => {
 
   // New session
   const transport = await createMcpSession();
+  //Handshake happens here.
   return transport.handleRequest(c.req.raw);
 });

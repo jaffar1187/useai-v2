@@ -40,7 +40,7 @@ export function App() {
 
           {sessions.map((session) => (
             <div
-              key={session.id}
+              key={session.sessionId}
               className="bg-zinc-900 border border-zinc-800 rounded-lg p-4"
             >
               <div className="flex justify-between items-start">

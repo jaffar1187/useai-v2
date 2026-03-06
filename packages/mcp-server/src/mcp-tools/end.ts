@@ -141,7 +141,7 @@ export function registerEndTool(
       }
 
       await saveSession({
-        id: session.sessionId,
+        sessionId: session.sessionId,
         client: session.client,
         taskType: task_type ?? session.taskType,
         title: session.title ?? "",

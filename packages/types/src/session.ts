@@ -38,7 +38,7 @@ export interface SessionEvaluation {
 }
 
 export interface Session {
-  id: string;
+  sessionId: string;
   client: string;
   taskType: string;
   title: string;

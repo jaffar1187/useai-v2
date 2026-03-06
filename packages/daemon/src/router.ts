@@ -9,6 +9,7 @@ import { mcpRoutes } from "./routes/mcp.js";
 export function createApp(): Hono {
   const app = new Hono();
 
+  //This is for dashboard API calls, As it runs in browser.
   app.use("/*", cors({ origin: "*" }));
 
   app.route("/mcp", mcpRoutes);

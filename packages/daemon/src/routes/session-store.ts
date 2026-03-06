@@ -9,6 +9,7 @@ export interface ActiveSession {
   lastActivity: number;
 }
 
+//Mutable map, used to store active sessions
 export const sessions = new Map<string, ActiveSession>();
 
 export function sweepOrphanSessions(maxAgeMs: number = 15 * 60 * 1000): number {
