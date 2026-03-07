@@ -21,7 +21,8 @@ async function del<T>(path: string): Promise<T> {
 
 function toSessionSeal(raw: Record<string, unknown>): SessionSeal {
   const seal: SessionSeal = {
-    session_id: raw['sessionId'] as string,
+    session_id: raw['promptId'] as string,
+    ...(raw['connectionId'] !== undefined && { conversation_id: raw['connectionId'] as string }),
     client: raw['client'] as string,
     task_type: raw['taskType'] as string,
     languages: (raw['languages'] as string[]) ?? [],
@@ -29,18 +30,16 @@ function toSessionSeal(raw: Record<string, unknown>): SessionSeal {
     started_at: raw['startedAt'] as string,
     ended_at: raw['endedAt'] as string,
     duration_seconds: (raw['durationMs'] as number) / 1000,
-    heartbeat_count: (raw['heartbeatCount'] as number) ?? 0,
-    record_count: (raw['recordCount'] as number) ?? 0,
-    chain_start_hash: (raw['chainStartHash'] as string) ?? '',
-    chain_end_hash: (raw['chainEndHash'] as string) ?? '',
-    seal_signature: (raw['sealSignature'] as string) ?? '',
+    heartbeat_count: 0,
+    record_count: 0,
+    chain_start_hash: (raw['prevHash'] as string) ?? '',
+    chain_end_hash: (raw['hash'] as string) ?? '',
+    seal_signature: (raw['signature'] as string) ?? '',
   };
-  if (raw['conversationId'] !== undefined) seal.conversation_id = raw['conversationId'] as string;
-  if (raw['conversationIndex'] !== undefined) seal.conversation_index = raw['conversationIndex'] as number;
   if (raw['project'] !== undefined) seal.project = raw['project'] as string;
   if (raw['title'] !== undefined) seal.title = raw['title'] as string;
+  if (raw['privateTitle'] !== undefined) seal.private_title = raw['privateTitle'] as string;
   if (raw['prompt'] !== undefined) seal.prompt = raw['prompt'] as string;
-  if (raw['promptWordCount'] !== undefined) seal.prompt_word_count = raw['promptWordCount'] as number;
   if (raw['model'] !== undefined) seal.model = raw['model'] as string;
   if (raw['evaluation'] !== undefined) seal.evaluation = raw['evaluation'] as SessionEvaluation;
   return seal;
@@ -49,16 +48,16 @@ function toSessionSeal(raw: Record<string, unknown>): SessionSeal {
 function toMilestone(raw: Record<string, unknown>): Milestone {
   const m: Milestone = {
     id: raw['id'] as string,
-    session_id: raw['sessionId'] as string,
+    session_id: raw['promptId'] as string,
     title: raw['title'] as string,
     category: raw['category'] as string,
-    complexity: raw['complexity'] as string,
+    complexity: (raw['complexity'] as string) ?? 'medium',
     duration_minutes: (raw['durationMinutes'] as number) ?? 0,
     languages: (raw['languages'] as string[]) ?? [],
     client: raw['client'] as string,
     created_at: raw['createdAt'] as string,
-    published: (raw['published'] as boolean) ?? false,
-    published_at: (raw['publishedAt'] as string | null) ?? null,
+    published: false,
+    published_at: null,
     chain_hash: (raw['chainHash'] as string) ?? '',
   };
   if (raw['privateTitle'] !== undefined) m.private_title = raw['privateTitle'] as string;
@@ -68,13 +67,13 @@ function toMilestone(raw: Record<string, unknown>): Milestone {
 
 // ── Endpoints ────────────────────────────────────────────────────────────────
 
-export async function fetchSessions(): Promise<SessionSeal[]> {
-  const res = await get<{ ok: boolean; data: { sessions: Record<string, unknown>[] } }>('/sessions');
+export async function fetchSessions(days = 7): Promise<SessionSeal[]> {
+  const res = await get<{ ok: boolean; data: { sessions: Record<string, unknown>[] } }>(`/sessions?days=${days}`);
   return (res.data?.sessions ?? []).map(toSessionSeal);
 }
 
-export async function fetchMilestones(): Promise<Milestone[]> {
-  const res = await get<{ ok: boolean; data: { milestones: Record<string, unknown>[] } }>('/sessions/milestones');
+export async function fetchMilestones(days = 7): Promise<Milestone[]> {
+  const res = await get<{ ok: boolean; data: { milestones: Record<string, unknown>[] } }>(`/sessions/milestones?days=${days}`);
   return (res.data?.milestones ?? []).map(toMilestone);
 }
 

@@ -1,16 +1,16 @@
 import { Hono } from "hono";
-import { getAllSessions } from "@useai/storage";
+import { readSessionsForRange } from "@useai/storage";
 import type { StatsResponse } from "@useai/types";
 
 export const statsRoutes = new Hono();
 
 statsRoutes.get("/", async (c) => {
-  const sessions = await getAllSessions();
+  const sessions = await readSessionsForRange(30);
 
   const stats: StatsResponse = {
     totalSessions: sessions.length,
     totalDurationMs: sessions.reduce((sum, s) => sum + s.durationMs, 0),
-    currentStreak: 0, // TODO: compute from session dates
+    currentStreak: 0,
     longestStreak: 0,
     averageScore:
       sessions.length > 0

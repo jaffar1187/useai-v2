@@ -1,88 +1,75 @@
 import { join } from "node:path";
-import { rename, readFile, readdir } from "node:fs/promises";
-import type { Session, Milestone, ChainRecord } from "@useai/types";
-import {
-  ACTIVE_DIR,
-  SEALED_DIR,
-  SESSIONS_FILE,
-  MILESTONES_FILE,
-} from "./paths.js";
-import { readJson, writeJson, appendLine, ensureDir } from "./fs.js";
+import { readFile, writeFile } from "node:fs/promises";
+import type { Session } from "@useai/types";
+import { DATA_DIR } from "./paths.js";
+import { ensureDir, appendLine } from "./fs.js";
 
-export async function getActiveChainPath(sessionId: string): Promise<string> {
-  return join(ACTIVE_DIR, `${sessionId}.jsonl`);
+function dateFilePath(date: string): string {
+  return join(DATA_DIR, `${date}.jsonl`);
 }
 
-export async function getSealedChainPath(sessionId: string): Promise<string> {
-  return join(SEALED_DIR, `${sessionId}.jsonl`);
-}
-
-export async function appendChainRecord(
-  sessionId: string,
-  record: ChainRecord,
-): Promise<void> {
-  const path = await getActiveChainPath(sessionId);
-  await appendLine(path, JSON.stringify(record));
-}
-
-export async function sealSession(sessionId: string): Promise<void> {
-  await ensureDir(SEALED_DIR);
-  const from = await getActiveChainPath(sessionId);
-  const to = await getSealedChainPath(sessionId);
-  await rename(from, to);
-}
-
-export async function readChainFile(path: string): Promise<ChainRecord[]> {
-  try {
-    const raw = await readFile(path, "utf-8");
-    return raw
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => JSON.parse(line) as ChainRecord);
-  } catch {
-    return [];
+function getLast(days: number): string[] {
+  const dates: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().slice(0, 10));
   }
+  return dates;
 }
 
-export async function listActiveSessions(): Promise<string[]> {
-  try {
-    const files = await readdir(ACTIVE_DIR);
-    return files
-      .filter((f) => f.endsWith(".jsonl"))
-      .map((f) => f.replace(".jsonl", ""));
-  } catch {
-    return [];
+export async function appendSession(session: Session): Promise<void> {
+  await ensureDir(DATA_DIR);
+  const date = session.endedAt.slice(0, 10);
+  await appendLine(dateFilePath(date), JSON.stringify(session));
+}
+
+export async function readSessionsForRange(days: number): Promise<Session[]> {
+  const dates = getLast(Math.min(days, 30));
+  const results = await Promise.all(
+    dates.map(async (date) => {
+      try {
+        const raw = await readFile(dateFilePath(date), "utf-8");
+        return raw
+          .trim()
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => JSON.parse(line) as Session);
+      } catch {
+        return [];
+      }
+    }),
+  );
+  return results
+    .flat()
+    .sort(
+      (a, b) =>
+        b.endedAt.localeCompare(a.endedAt) ||
+        a.promptId.localeCompare(b.promptId),
+    );
+}
+
+export async function deleteSession(promptId: string): Promise<void> {
+  const dates = getLast(30);
+  for (const date of dates) {
+    const path = dateFilePath(date);
+    try {
+      const raw = await readFile(path, "utf-8");
+      const lines = raw.trim().split("\n").filter(Boolean);
+      const filtered = lines.filter((line) => {
+        const s = JSON.parse(line) as Session;
+        return s.promptId !== promptId;
+      });
+      if (filtered.length !== lines.length) {
+        await writeFile(
+          path,
+          filtered.join("\n") + (filtered.length ? "\n" : ""),
+          "utf-8",
+        );
+        return;
+      }
+    } catch {
+      // file doesn't exist, skip
+    }
   }
-}
-
-export async function getAllSessions(): Promise<Session[]> {
-  return (await readJson<Session[]>(SESSIONS_FILE)) ?? [];
-}
-
-export async function saveSession(session: Session): Promise<void> {
-  const sessions = await getAllSessions();
-  const idx = sessions.findIndex((s) => s.sessionId === session.sessionId);
-  if (idx >= 0) {
-    sessions[idx] = session;
-  } else {
-    sessions.push(session);
-  }
-  await writeJson(SESSIONS_FILE, sessions);
-}
-
-export async function deleteSession(sessionId: string): Promise<void> {
-  const sessions = await getAllSessions();
-  const filtered = sessions.filter((s) => s.sessionId !== sessionId);
-  await writeJson(SESSIONS_FILE, filtered);
-}
-
-export async function getAllMilestones(): Promise<Milestone[]> {
-  return (await readJson<Milestone[]>(MILESTONES_FILE)) ?? [];
-}
-
-export async function saveMilestone(milestone: Milestone): Promise<void> {
-  const milestones = await getAllMilestones();
-  milestones.push(milestone);
-  await writeJson(MILESTONES_FILE, milestones);
 }

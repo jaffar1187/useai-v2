@@ -1,9 +1,9 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { SessionState } from "../session-state.js";
+import type { PromptContext } from "../prompt-context.js";
 
 export function registerHeartbeatTool(
   server: McpServer,
-  getSession: () => SessionState,
+  _ctx: PromptContext,
 ): void {
   server.registerTool(
     "useai_heartbeat",
@@ -12,9 +12,6 @@ export function registerHeartbeatTool(
         "Keep-alive for long running sessions. Call periodically during long conversations (every 10-15 minutes).",
     },
     async () => {
-      const session = getSession();
-      await session.writeRecord("heartbeat", {});
-
       return {
         content: [{ type: "text" as const, text: "Heartbeat recorded." }],
       };

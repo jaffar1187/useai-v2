@@ -1,17 +1,16 @@
 import { serve } from "@hono/node-server";
 import { createApp } from "./router.js";
-import { sweepOrphanSessions } from "./routes/mcp.js";
+import { sweepStaleConnections } from "./routes/mcp.js";
 import { ensureDir } from "@useai/storage";
-import { ACTIVE_DIR, SEALED_DIR, DAEMON_PORT, DAEMON_HOST } from "@useai/storage/paths";
+import { DATA_DIR, DAEMON_PORT, DAEMON_HOST } from "@useai/storage/paths";
 
 export async function initDataDirs(): Promise<void> {
-  await ensureDir(ACTIVE_DIR);
-  await ensureDir(SEALED_DIR);
+  await ensureDir(DATA_DIR);
 }
 
 export function startOrphanSweep(intervalMs: number): NodeJS.Timeout {
   return setInterval(() => {
-    const cleaned = sweepOrphanSessions();
+    const cleaned = sweepStaleConnections();
     if (cleaned > 0) {
       console.log(`Swept ${cleaned} orphan session(s)`);
     }

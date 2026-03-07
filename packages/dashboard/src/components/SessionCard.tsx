@@ -406,7 +406,7 @@ export const SessionCard = memo(function SessionCard({ session, milestones, defa
               <div className="h-px bg-border/20 mb-2 mx-1" />
 
               {!showPublic && session.prompt && (
-                <PromptDisplay prompt={session.prompt} {...(session.prompt_image_count !== undefined ? { imageCount: session.prompt_image_count } : {})} {...(session.prompt_images !== undefined ? { images: session.prompt_images } : {})} />
+                <PromptDisplay prompt={session.prompt} />
               )}
 
               {session.evaluation && (

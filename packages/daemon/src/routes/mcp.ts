@@ -1,30 +1,27 @@
 import { Hono } from "hono";
-import { sessions } from "./session-store.js";
-import { createMcpSession } from "./session-factory.js";
+import { connections } from "./connection-store.js";
+import { createMcpConnection } from "./connection-factory.js";
 
-export { sweepOrphanSessions, getActiveSessionCount } from "./session-store.js";
+export {
+  sweepStaleConnections,
+  getConnectionCount,
+} from "./connection-store.js";
 
 export const mcpRoutes = new Hono();
 
 mcpRoutes.all("/", async (c) => {
-  //Transport needs data to be in bits, untouched/parsed.
-  //uses c.req.raw.header to get mcp-session-id, but does not consume anything like c.req.json(). so reading header like this is safe, as the bits are still untouched.
-  const sessionId = c.req.header("mcp-session-id");
+  const connectionId = c.req.header("mcp-session-id");
 
-  // Existing session — route to its transport
-  if (sessionId && sessions.has(sessionId)) {
-    const active = sessions.get(sessionId)!;
-    active.lastActivity = Date.now();
-    return active.transport.handleRequest(c.req.raw);
+  if (connectionId && connections.has(connectionId)) {
+    const conn = connections.get(connectionId)!;
+    conn.lastActivity = Date.now();
+    return conn.transport.handleRequest(c.req.raw);
   }
 
-  // DELETE for unknown session
-  if (c.req.method === "DELETE" && sessionId) {
+  if (c.req.method === "DELETE" && connectionId) {
     return c.json({ error: "Session not found" }, 404);
   }
 
-  // New session
-  const transport = await createMcpSession();
-  //Handshake happens here.
+  const transport = await createMcpConnection();
   return transport.handleRequest(c.req.raw);
 });

@@ -1,3 +1,3 @@
-export { computeHash, buildChainRecord, signHash } from "./chain.js";
+export { computeHash, buildSessionRecord, signHash } from "./chain.js";
 export { generateKeystore, decryptKeystore } from "./keystore.js";
-export { verifyChain, verifyRecord } from "./verify.js";
+export { verifySession, verifySessionChain } from "./verify.js";

@@ -1,12 +1,13 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { TaskTypeSchema } from "@useai/types";
-import type { SessionState } from "../session-state.js";
+import type { PromptContext } from "../prompt-context.js";
 import { coerceJsonString } from "./coerce.js";
 
 export function registerStartTool(
   server: McpServer,
-  getSession: () => SessionState,
+  ctx: PromptContext,
 ): void {
   server.registerTool(
     "useai_start",
@@ -59,32 +60,23 @@ export function registerStartTool(
       },
     },
     async ({ client, task_type, title, private_title, project, prompt, model, prompt_images }) => {
-      const session = getSession();
-      session.setClient(client ?? "unknown");
-      session.setTaskType(task_type ?? "other");
-      session.setTitle(title ?? null);
-      session.setPrivateTitle(private_title ?? null);
-      session.setProject(project ?? null);
-      session.setModel(model ?? null);
-      session.setPrompt(prompt ?? null);
-      session.setPromptImages(prompt_images ?? null);
-      session.markStarted();
-
-      await session.writeRecord("session_start", {
-        client: session.client,
-        task_type: session.taskType,
-        title: title ?? "",
-        private_title: private_title ?? "",
-        project: project ?? "",
-        model: model ?? "",
-        ...(prompt_images && { prompt_image_count: prompt_images.length, prompt_images }),
-      });
+      ctx.promptId = `prompt_${randomUUID()}`;
+      ctx.prevHash = "0".repeat(64);
+      ctx.startedAt = new Date();
+      ctx.client = client ?? "unknown";
+      ctx.taskType = task_type ?? "other";
+      ctx.title = title ?? null;
+      ctx.privateTitle = private_title ?? null;
+      ctx.project = project ?? null;
+      ctx.model = model ?? null;
+      ctx.prompt = prompt ?? null;
+      ctx.promptImages = prompt_images ?? null;
 
       return {
         content: [
           {
             type: "text" as const,
-            text: `Session ${session.sessionId} started. Call useai_end when done.`,
+            text: `Session ${ctx.promptId} started. Call useai_end when done.`,
           },
         ],
       };

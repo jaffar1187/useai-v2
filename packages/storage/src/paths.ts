@@ -5,10 +5,6 @@ const HOME = homedir();
 
 export const USEAI_DIR = join(HOME, ".useai");
 export const DATA_DIR = join(USEAI_DIR, "data");
-export const ACTIVE_DIR = join(DATA_DIR, "active");
-export const SEALED_DIR = join(DATA_DIR, "sealed");
-export const SESSIONS_FILE = join(DATA_DIR, "sessions.json");
-export const MILESTONES_FILE = join(DATA_DIR, "milestones.json");
 export const CONFIG_FILE = join(USEAI_DIR, "config.json");
 export const KEYSTORE_FILE = join(USEAI_DIR, "keystore.json");
 export const DAEMON_PID_FILE = join(USEAI_DIR, "daemon.pid");

@@ -1,42 +1,34 @@
 import { createHash, verify as cryptoVerify } from "node:crypto";
-import type { ChainRecord } from "@useai/types";
+import type { Session } from "@useai/types";
 
-export function verifyRecord(
-  record: ChainRecord,
-  publicKey: Buffer,
-): boolean {
-  const data = JSON.stringify({
-    type: record.type,
-    sessionId: record.sessionId,
-    timestamp: record.timestamp,
-    payload: record.payload,
-  });
-
+export function verifySession(session: Session, publicKey: Buffer): boolean {
+  const { hash, signature, ...rest } = session;
+  const data = JSON.stringify(rest);
   const expectedHash = createHash("sha256")
-    .update(data + record.prevHash)
+    .update(data + session.prevHash)
     .digest("hex");
 
-  if (expectedHash !== record.hash) return false;
+  if (expectedHash !== hash) return false;
 
   return cryptoVerify(
     null,
-    Buffer.from(record.hash, "hex"),
+    Buffer.from(hash, "hex"),
     { key: publicKey, format: "der", type: "spki" },
-    Buffer.from(record.signature, "base64"),
+    Buffer.from(signature, "base64"),
   );
 }
 
-export function verifyChain(
-  records: ChainRecord[],
+export function verifySessionChain(
+  sessions: Session[],
   publicKey: Buffer,
 ): { valid: boolean; brokenAt?: number } {
-  for (let i = 0; i < records.length; i++) {
-    const record = records[i];
-    if (!record || !verifyRecord(record, publicKey)) {
+  for (let i = 0; i < sessions.length; i++) {
+    const session = sessions[i];
+    if (!session || !verifySession(session, publicKey)) {
       return { valid: false, brokenAt: i };
     }
-    const prev = records[i - 1];
-    if (i > 0 && prev && record.prevHash !== prev.hash) {
+    const prev = sessions[i - 1];
+    if (i > 0 && prev && session.prevHash !== prev.hash) {
       return { valid: false, brokenAt: i };
     }
   }

@@ -19,9 +19,6 @@ export type MilestoneCategory = z.infer<typeof MilestoneCategorySchema>;
 export const ComplexitySchema = z.enum(["simple", "medium", "complex"]);
 export type Complexity = z.infer<typeof ComplexitySchema>;
 
-export const SessionStatusSchema = z.enum(["active", "sealed", "abandoned"]);
-export type SessionStatus = z.infer<typeof SessionStatusSchema>;
-
 export interface SessionEvaluation {
   prompt_quality: number;
   prompt_quality_reason?: string;
@@ -37,26 +34,6 @@ export interface SessionEvaluation {
   tools_leveraged: number;
 }
 
-export interface Session {
-  sessionId: string;
-  client: string;
-  taskType: string;
-  title: string;
-  privateTitle?: string;
-  project?: string;
-  model?: string;
-  startedAt: string;
-  endedAt?: string;
-  durationMs: number;
-  status: SessionStatus;
-  score?: SessionScore;
-  milestones: Milestone[];
-  languages?: string[];
-  filesTouchedCount?: number;
-  evaluation?: SessionEvaluation;
-  metadata: Record<string, unknown>;
-}
-
 export interface SessionScore {
   overall: number;
   components: Record<string, number>;
@@ -65,10 +42,31 @@ export interface SessionScore {
 
 export interface Milestone {
   id: string;
-  sessionId: string;
   title: string;
   privateTitle?: string;
   category: string;
   complexity?: string;
-  achievedAt: string;
+}
+
+export interface Session {
+  promptId: string;
+  connectionId: string;
+  client: string;
+  taskType: string;
+  title: string;
+  privateTitle?: string;
+  project?: string;
+  model?: string;
+  prompt?: string;
+  startedAt: string;
+  endedAt: string;
+  durationMs: number;
+  score?: SessionScore;
+  milestones: Milestone[];
+  languages?: string[];
+  filesTouchedCount?: number;
+  evaluation?: SessionEvaluation;
+  prevHash: string;
+  hash: string;
+  signature: string;
 }

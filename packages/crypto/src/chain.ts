@@ -1,5 +1,5 @@
 import { createHash, sign } from "node:crypto";
-import type { ChainRecord, ChainRecordType } from "@useai/types";
+import type { Session } from "@useai/types";
 
 export function computeHash(data: string, prevHash: string): string {
   return createHash("sha256")
@@ -16,31 +16,12 @@ export function signHash(hash: string, privateKey: Buffer): string {
   return sig.toString("base64");
 }
 
-export function buildChainRecord(opts: {
-  type: ChainRecordType;
-  sessionId: string;
-  prevHash: string;
-  payload: Record<string, unknown>;
-  privateKey: Buffer;
-}): ChainRecord {
-  const timestamp = new Date().toISOString();
-  const data = JSON.stringify({
-    type: opts.type,
-    sessionId: opts.sessionId,
-    timestamp,
-    payload: opts.payload,
-  });
-
-  const hash = computeHash(data, opts.prevHash);
-  const signature = signHash(hash, opts.privateKey);
-
-  return {
-    type: opts.type,
-    sessionId: opts.sessionId,
-    timestamp,
-    prevHash: opts.prevHash,
-    hash,
-    signature,
-    payload: opts.payload,
-  };
+export function buildSessionRecord(
+  session: Omit<Session, "hash" | "signature">,
+  privateKey: Buffer,
+): { hash: string; signature: string } {
+  const data = JSON.stringify(session);
+  const hash = computeHash(data, session.prevHash);
+  const signature = signHash(hash, privateKey);
+  return { hash, signature };
 }

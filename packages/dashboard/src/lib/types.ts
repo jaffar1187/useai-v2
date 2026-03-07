@@ -16,7 +16,6 @@ export interface SessionEvaluation {
 export interface SessionSeal {
   session_id: string;
   conversation_id?: string;
-  conversation_index?: number;
   client: string;
   task_type: string;
   languages: string[];
@@ -25,8 +24,6 @@ export interface SessionSeal {
   title?: string;
   private_title?: string;
   prompt?: string;
-  prompt_image_count?: number;
-  prompt_images?: Array<{ type: 'image'; description: string }>;
   prompt_word_count?: number;
   model?: string;
   evaluation?: SessionEvaluation;
