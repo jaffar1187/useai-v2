@@ -189,6 +189,9 @@ importers:
 
   packages/tool-installer:
     dependencies:
+      '@useai/storage':
+        specifier: workspace:^
+        version: link:../storage
       '@useai/types':
         specifier: workspace:*
         version: link:../types

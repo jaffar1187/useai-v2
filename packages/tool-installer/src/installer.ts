@@ -1,6 +1,9 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFileSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
-import { getToolConfig } from "./configs.js";
+import { DAEMON_URL, DAEMON_PROTOCOL } from "@useai/storage/paths";
+import { getToolConfig, getAllToolConfigs } from "./configs.js";
+import { injectInstructions, removeInstructions } from "./instructions.js";
 
 export interface ToolInstallResult {
   success: boolean;
@@ -25,12 +28,11 @@ export async function installTool(toolId: string): Promise<ToolInstallResult> {
       // File doesn't exist yet
     }
 
-    const servers =
-      (existing[config.mcpKey] as Record<string, unknown>) ?? {};
+    const servers = (existing[config.mcpKey] as Record<string, unknown>) ?? {};
 
     servers["useai"] = {
-      command: "npx",
-      args: ["-y", "@devness/useai@latest"],
+      type: DAEMON_PROTOCOL,
+      url: `${DAEMON_URL}/mcp`,
     };
 
     existing[config.mcpKey] = servers;
@@ -40,6 +42,10 @@ export async function installTool(toolId: string): Promise<ToolInstallResult> {
       JSON.stringify(existing, null, 2),
       "utf-8",
     );
+
+    if (config.instructionsPath && config.instructionsMethod) {
+      injectInstructions(config.instructionsPath, config.instructionsMethod);
+    }
 
     return {
       success: true,
@@ -74,6 +80,10 @@ export async function removeTool(toolId: string): Promise<ToolInstallResult> {
       "utf-8",
     );
 
+    if (config.instructionsPath && config.instructionsMethod) {
+      removeInstructions(config.instructionsPath, config.instructionsMethod);
+    }
+
     return {
       success: true,
       toolId,
@@ -90,7 +100,6 @@ export async function removeTool(toolId: string): Promise<ToolInstallResult> {
 
 export async function listInstalledTools(): Promise<string[]> {
   const installed: string[] = [];
-  const { getAllToolConfigs } = await import("./configs.js");
 
   for (const config of getAllToolConfigs()) {
     try {
@@ -106,4 +115,23 @@ export async function listInstalledTools(): Promise<string[]> {
   }
 
   return installed;
+}
+
+export function isToolConfigured(toolId: string): boolean {
+  const config = getToolConfig(toolId);
+  if (!config || !existsSync(config.configPath)) return false;
+  try {
+    const raw = readFileSync(config.configPath, "utf-8");
+    const existing = JSON.parse(raw);
+    const servers = existing[config.mcpKey] ?? {};
+    return !!servers["useai"];
+  } catch {
+    return false;
+  }
+}
+
+export function detectInstalledTools(): string[] {
+  return getAllToolConfigs()
+    .filter((c) => c.detect())
+    .map((c) => c.id);
 }

@@ -13,6 +13,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@useai/storage": "workspace:^",
     "@useai/types": "workspace:*"
   },
   "devDependencies": {

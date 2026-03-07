@@ -25,7 +25,7 @@ function toSessionSeal(raw: Record<string, unknown>): SessionSeal {
     client: raw['client'] as string,
     task_type: raw['taskType'] as string,
     languages: (raw['languages'] as string[]) ?? [],
-    files_touched: (raw['filesTouched'] as number) ?? 0,
+    files_touched: (raw['filesTouchedCount'] as number) ?? 0,
     started_at: raw['startedAt'] as string,
     ended_at: raw['endedAt'] as string,
     duration_seconds: (raw['durationMs'] as number) / 1000,
@@ -69,13 +69,13 @@ function toMilestone(raw: Record<string, unknown>): Milestone {
 // ── Endpoints ────────────────────────────────────────────────────────────────
 
 export async function fetchSessions(): Promise<SessionSeal[]> {
-  const raw = await get<Record<string, unknown>[]>('/sessions');
-  return raw.map(toSessionSeal);
+  const res = await get<{ ok: boolean; data: { sessions: Record<string, unknown>[] } }>('/sessions');
+  return (res.data?.sessions ?? []).map(toSessionSeal);
 }
 
 export async function fetchMilestones(): Promise<Milestone[]> {
-  const raw = await get<Record<string, unknown>[]>('/milestones');
-  return raw.map(toMilestone);
+  const res = await get<{ ok: boolean; data: { milestones: Record<string, unknown>[] } }>('/sessions/milestones');
+  return (res.data?.milestones ?? []).map(toMilestone);
 }
 
 export async function fetchHealth(): Promise<HealthInfo> {

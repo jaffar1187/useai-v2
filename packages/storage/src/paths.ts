@@ -16,4 +16,5 @@ export const DAEMON_LOG_FILE = join(USEAI_DIR, "daemon.log");
 
 export const DAEMON_PORT = Number(process.env["USEAI_PORT"] ?? 19200);
 export const DAEMON_HOST = process.env["USEAI_HOST"] ?? "127.0.0.1";
-export const DAEMON_URL = `http://${DAEMON_HOST}:${DAEMON_PORT}`;
+export const DAEMON_PROTOCOL = process.env["USEAI_PROTOCOL"] ?? "http";
+export const DAEMON_URL = `${DAEMON_PROTOCOL}://${DAEMON_HOST}:${DAEMON_PORT}`;

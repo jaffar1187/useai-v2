@@ -4,7 +4,7 @@ import { appendChainRecord, getOrCreateKeystore } from "@useai/storage";
 import { randomUUID } from "node:crypto";
 
 export class SessionState {
-  readonly sessionId: string;
+  private _sessionId: string;
   private chainTip: string = "0".repeat(64);
   private privateKey: Buffer | null = null;
   private _client: string = "unknown";
@@ -15,22 +15,47 @@ export class SessionState {
   private _project: string | null = null;
   private _model: string | null = null;
   private _prompt: string | null = null;
-  private _promptImages: Array<{ type: "image"; description: string }> | null = null;
+  private _promptImages: Array<{ type: "image"; description: string }> | null =
+    null;
 
   constructor() {
-    this.sessionId = `ses_${randomUUID()}`;
+    this._sessionId = `ses_${randomUUID()}`;
   }
 
-  get client(): string { return this._client; }
-  get startedAt(): Date | null { return this._startedAt; }
-  get lastHash(): string { return this.chainTip; }
-  get taskType(): string { return this._taskType; }
-  get title(): string | null { return this._title; }
-  get privateTitle(): string | null { return this._privateTitle; }
-  get project(): string | null { return this._project; }
-  get model(): string | null { return this._model; }
-  get prompt(): string | null { return this._prompt; }
-  get promptImages(): Array<{ type: "image"; description: string }> | null { return this._promptImages; }
+  get sessionId(): string {
+    return this._sessionId;
+  }
+
+  get client(): string {
+    return this._client;
+  }
+  get startedAt(): Date | null {
+    return this._startedAt;
+  }
+  get lastHash(): string {
+    return this.chainTip;
+  }
+  get taskType(): string {
+    return this._taskType;
+  }
+  get title(): string | null {
+    return this._title;
+  }
+  get privateTitle(): string | null {
+    return this._privateTitle;
+  }
+  get project(): string | null {
+    return this._project;
+  }
+  get model(): string | null {
+    return this._model;
+  }
+  get prompt(): string | null {
+    return this._prompt;
+  }
+  get promptImages(): Array<{ type: "image"; description: string }> | null {
+    return this._promptImages;
+  }
 
   async init(): Promise<void> {
     const { privateKey } = await getOrCreateKeystore();
@@ -52,20 +77,44 @@ export class SessionState {
     });
 
     await appendChainRecord(this.sessionId, record);
+    /*Chaintip is a dll which make sure in between records are not tampered by anyone.
+     { type: "start",  hash: "abc123", prevHash: "000...0",  payload: {...} }
+     { type: "heart",  hash: "def456", prevHash: "abc123",   payload: {...} }
+     { type: "end",    hash: "ghi789", prevHash: "def456",   payload: {...} }*/
     this.chainTip = record.hash;
     return record;
   }
 
-  setClient(client: string): void { this._client = client; }
-  setTaskType(taskType: string): void { this._taskType = taskType; }
-  setTitle(title: string | null): void { this._title = title; }
-  setPrivateTitle(privateTitle: string | null): void { this._privateTitle = privateTitle; }
-  setProject(project: string | null): void { this._project = project; }
-  setModel(model: string | null): void { this._model = model; }
-  setPrompt(prompt: string | null): void { this._prompt = prompt; }
-  setPromptImages(images: Array<{ type: "image"; description: string }> | null): void { this._promptImages = images; }
+  setClient(client: string): void {
+    this._client = client;
+  }
+  setTaskType(taskType: string): void {
+    this._taskType = taskType;
+  }
+  setTitle(title: string | null): void {
+    this._title = title;
+  }
+  setPrivateTitle(privateTitle: string | null): void {
+    this._privateTitle = privateTitle;
+  }
+  setProject(project: string | null): void {
+    this._project = project;
+  }
+  setModel(model: string | null): void {
+    this._model = model;
+  }
+  setPrompt(prompt: string | null): void {
+    this._prompt = prompt;
+  }
+  setPromptImages(
+    images: Array<{ type: "image"; description: string }> | null,
+  ): void {
+    this._promptImages = images;
+  }
 
   markStarted(): void {
+    this._sessionId = `ses_${randomUUID()}`;
+    this.chainTip = "0".repeat(64);
     this._startedAt = new Date();
   }
 }

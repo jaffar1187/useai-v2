@@ -20,6 +20,7 @@ Claude disconnects → mcpSessionId removed from Map
 */
 
 export async function createMcpSession(): Promise<WebStandardStreamableHTTPServerTransport> {
+  //sessionId is set here by default, which will be used to write to disk
   const sessionState = new SessionState();
   const server = new McpServer({ name: "useai", version: "0.1.0" });
 
