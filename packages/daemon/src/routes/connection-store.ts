@@ -12,11 +12,13 @@ export interface Connection {
 // Keyed by connectionId (the MCP transport session ID)
 export const connections = new Map<string, Connection>();
 
-export function sweepStaleConnections(maxAgeMs: number = 15 * 60 * 1000): number {
+export function sweepStaleConnections(maxAgeMs: number = 24 * 60 * 60 * 1000): number {
   const now = Date.now();
   let cleaned = 0;
 
   for (const [id, conn] of connections) {
+    // Never sweep a connection that has an active prompt in progress
+    if (conn.promptContext.startedAt !== null) continue;
     if (now - conn.lastActivity > maxAgeMs) {
       conn.transport.close();
       connections.delete(id);

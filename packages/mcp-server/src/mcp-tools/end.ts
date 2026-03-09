@@ -77,7 +77,12 @@ export function registerEndTool(
       },
     },
     async ({ task_type, languages, files_touched_count, milestones: milestonesInput, evaluation }) => {
-      const startedAt = ctx.startedAt ?? new Date();
+      if (!ctx.startedAt) {
+        return {
+          content: [{ type: "text" as const, text: "No active session. Call useai_start first." }],
+        };
+      }
+      const startedAt = ctx.startedAt;
       const endedAt = new Date();
       const durationMs = endedAt.getTime() - startedAt.getTime();
       const sessionEval = evaluation as SessionEvaluation | undefined;
@@ -123,6 +128,7 @@ export function registerEndTool(
 
       await appendSession(fullSession);
       ctx.prevHash = hash;
+      ctx.startedAt = null;
 
       return {
         content: [

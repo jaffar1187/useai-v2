@@ -22,7 +22,7 @@ export function createPromptContext(): PromptContext {
     prevHash: "0".repeat(64),
     startedAt: null,
     client: "",
-    taskType: "other",
+    taskType: "",
     title: null,
     privateTitle: null,
     project: null,
