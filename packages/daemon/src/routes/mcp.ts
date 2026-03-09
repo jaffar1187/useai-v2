@@ -1,3 +1,4 @@
+import type { IncomingMessage } from "node:http";
 import { Hono } from "hono";
 import { connections } from "./connection-store.js";
 import { createMcpConnection } from "./connection-factory.js";
@@ -15,6 +16,15 @@ mcpRoutes.all("/", async (c) => {
   if (connectionId && connections.has(connectionId)) {
     const conn = connections.get(connectionId)!;
     conn.lastActivity = Date.now();
+
+    // For SSE(Server Sent Events) streams (GET), sweep the connection immediately when the AI tool / client disconnects.
+    if (c.req.method === "GET") {
+      const incoming = (c.env as { incoming?: IncomingMessage }).incoming;
+      incoming?.on("close", () => {
+        connections.delete(connectionId);
+      });
+    }
+
     return conn.transport.handleRequest(c.req.raw);
   }
 

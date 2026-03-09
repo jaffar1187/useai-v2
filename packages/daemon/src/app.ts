@@ -10,7 +10,7 @@ export async function initDataDirs(): Promise<void> {
 
 export function startOrphanSweep(intervalMs: number): NodeJS.Timeout {
   return setInterval(() => {
-    const cleaned = sweepStaleConnections();
+    const cleaned = sweepStaleConnections(intervalMs);
     if (cleaned > 0) {
       console.log(`Swept ${cleaned} orphan session(s)`);
     }
@@ -19,6 +19,7 @@ export function startOrphanSweep(intervalMs: number): NodeJS.Timeout {
 
 export async function startDaemon(): Promise<void> {
   await initDataDirs();
+  sweepStaleConnections();
 
   const app = createApp();
 
@@ -31,7 +32,7 @@ export async function startDaemon(): Promise<void> {
     },
   );
 
-  startOrphanSweep(15 * 60 * 1000);
+  startOrphanSweep(12 * 60 * 60 * 1000);
 }
 
 // Run directly

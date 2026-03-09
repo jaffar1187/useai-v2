@@ -46,9 +46,13 @@ export function createPromptContext(): PromptContext {
  * If the gap since the last activity exceeds the idle threshold, the gap is
  * accumulated as idle time. Used by both the heartbeat tool and useai_end.
  */
-export function touchActivity(ctx: PromptContext, now: number = Date.now()): void {
-  if (ctx.lastActivityTime !== null) {
-    const gap = now - ctx.lastActivityTime;
+export function touchActivity(
+  ctx: PromptContext,
+  now: number = Date.now(),
+): void {
+  const baseline = ctx.lastActivityTime ?? ctx.startedAt?.getTime() ?? null;
+  if (baseline !== null) {
+    const gap = now - baseline;
     if (gap > IDLE_GAP_THRESHOLD_MS) {
       ctx.idleMs += gap;
     }
@@ -62,17 +66,11 @@ export function touchActivity(ctx: PromptContext, now: number = Date.now()): voi
  */
 export function getActiveDurationMs(
   startedAt: Date,
-  endedAt: Date,
   lastActivityTime: number | null,
   idleMs: number,
 ): number {
   if (!lastActivityTime) {
-    // No heartbeats — can't detect idle, use full wall-clock duration
-    return endedAt.getTime() - startedAt.getTime();
-  }
-  if (lastActivityTime < startedAt.getTime()) {
-    // Clock skew or corrupt state
-    return 0;
+    lastActivityTime = 0;
   }
   return Math.max(0, lastActivityTime - startedAt.getTime() - idleMs);
 }

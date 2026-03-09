@@ -4,7 +4,11 @@ import { randomUUID } from "node:crypto";
 import { buildSessionRecord } from "@useai/crypto";
 import { appendSession, getOrCreateKeystore } from "@useai/storage";
 import { computeSpaceScore } from "@useai/scoring";
-import { TaskTypeSchema, MilestoneCategorySchema, ComplexitySchema } from "@useai/types";
+import {
+  TaskTypeSchema,
+  MilestoneCategorySchema,
+  ComplexitySchema,
+} from "@useai/types";
 import type { SessionEvaluation, Milestone, Session } from "@useai/types";
 import type { PromptContext } from "../prompt-context.js";
 import { touchActivity, getActiveDurationMs } from "../prompt-context.js";
@@ -19,10 +23,7 @@ async function getPrivateKey(): Promise<Buffer> {
   return privateKey;
 }
 
-export function registerEndTool(
-  server: McpServer,
-  ctx: PromptContext,
-): void {
+export function registerEndTool(server: McpServer, ctx: PromptContext): void {
   server.registerTool(
     "useai_end",
     {
@@ -41,17 +42,30 @@ export function registerEndTool(
         ),
         languages: coerceJsonString(z.array(z.string()))
           .optional()
-          .describe('Programming languages used (e.g. ["typescript", "python"])'),
+          .describe(
+            'Programming languages used (e.g. ["typescript", "python"])',
+          ),
         files_touched_count: coerceJsonString(z.number())
           .optional()
           .describe("Approximate number of files created or modified"),
         milestones: coerceJsonString(
           z.array(
             z.object({
-              title: z.string().describe('Generic description — no project names, file paths, or identifying details.'),
-              private_title: z.string().optional().describe("Detailed description for private records."),
-              category: MilestoneCategorySchema.describe("Type of work: feature, bugfix, refactor, etc."),
-              complexity: ComplexitySchema.optional().describe("simple, medium, or complex. Defaults to medium."),
+              title: z
+                .string()
+                .describe(
+                  "Generic description — no project names, file paths, or identifying details.",
+                ),
+              private_title: z
+                .string()
+                .optional()
+                .describe("Detailed description for private records."),
+              category: MilestoneCategorySchema.describe(
+                "Type of work: feature, bugfix, refactor, etc.",
+              ),
+              complexity: ComplexitySchema.optional().describe(
+                "simple, medium, or complex. Defaults to medium.",
+              ),
             }),
           ),
         )
@@ -63,7 +77,12 @@ export function registerEndTool(
             prompt_quality_reason: z.string().optional(),
             context_provided: z.number().min(1).max(5),
             context_provided_reason: z.string().optional(),
-            task_outcome: z.enum(["completed", "partial", "abandoned", "blocked"]),
+            task_outcome: z.enum([
+              "completed",
+              "partial",
+              "abandoned",
+              "blocked",
+            ]),
             task_outcome_reason: z.string().optional(),
             iteration_count: z.number().min(1),
             independence_level: z.number().min(1).max(5),
@@ -77,10 +96,21 @@ export function registerEndTool(
           .describe("AI-assessed evaluation of this session."),
       },
     },
-    async ({ task_type, languages, files_touched_count, milestones: milestonesInput, evaluation }) => {
+    async ({
+      task_type,
+      languages,
+      files_touched_count,
+      milestones: milestonesInput,
+      evaluation,
+    }) => {
       if (!ctx.startedAt) {
         return {
-          content: [{ type: "text" as const, text: "No active session. Call useai_start first." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "No active session. Call useai_start first.",
+            },
+          ],
         };
       }
       const startedAt = ctx.startedAt;
@@ -90,7 +120,11 @@ export function registerEndTool(
       // flushes any open idle gap if the user was away before calling useai_end.
       touchActivity(ctx, endedAt.getTime());
 
-      const durationMs = getActiveDurationMs(startedAt, endedAt, ctx.lastActivityTime, ctx.idleMs);
+      const durationMs = getActiveDurationMs(
+        startedAt,
+        ctx.lastActivityTime,
+        ctx.idleMs,
+      );
       const sessionEval = evaluation as SessionEvaluation | undefined;
 
       const score = computeSpaceScore({
@@ -124,7 +158,9 @@ export function registerEndTool(
         ...(ctx.project && { project: ctx.project }),
         ...(ctx.model && { model: ctx.model }),
         ...(ctx.prompt && { prompt: ctx.prompt }),
-        ...(files_touched_count !== undefined && { filesTouchedCount: files_touched_count }),
+        ...(files_touched_count !== undefined && {
+          filesTouchedCount: files_touched_count,
+        }),
         ...(sessionEval && { evaluation: sessionEval }),
       };
 

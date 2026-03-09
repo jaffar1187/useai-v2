@@ -12,7 +12,7 @@ export interface Connection {
 // Keyed by connectionId (the MCP transport session ID)
 export const connections = new Map<string, Connection>();
 
-export function sweepStaleConnections(maxAgeMs: number = 24 * 60 * 60 * 1000): number {
+export function sweepStaleConnections(maxAgeMs: number = 0): number {
   const now = Date.now();
   let cleaned = 0;
 
