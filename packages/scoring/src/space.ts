@@ -21,7 +21,9 @@ export function computeSpaceScore(params: {
     : (completed ? 0.8 : 0.3);
 
   const performance = computePerformance(durationMs, completed || partial);
-  const activity = Math.min(1, durationMs / (60 * 60 * 1000));
+  const activity = evaluation
+    ? Math.min(1, 0.4 + evaluation.tools_leveraged * 0.06)
+    : Math.min(1, durationMs / (60 * 60 * 1000));
 
   // Communication: derived from prompt_quality + context_provided (each 1-5 → 0-1)
   const communication = evaluation

@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { PromptContext } from "../prompt-context.js";
+import { touchActivity } from "../prompt-context.js";
 
 export function registerHeartbeatTool(
   server: McpServer,
@@ -9,28 +10,28 @@ export function registerHeartbeatTool(
     "useai_heartbeat",
     {
       description:
-        "Keep-alive for long running sessions. Call periodically during long conversations (every 5 minutes).",
+        "Keep-alive signal for active sessions. Call every ~5 minutes while actively working. " +
+        "Gaps longer than 5 minutes between heartbeats are automatically counted as idle time " +
+        "and excluded from the active session duration.",
     },
     async () => {
       if (!ctx.startedAt) {
         return {
-          content: [
-            {
-              type: "text" as const,
-              text: "No active session. Call useai_start first.",
-            },
-          ],
+          content: [{ type: "text" as const, text: "No active session. Call useai_start first." }],
         };
       }
 
-      const elapsedMs = Date.now() - ctx.startedAt.getTime();
-      const elapsedMin = Math.round(elapsedMs / 60000);
+      const now = Date.now();
+      touchActivity(ctx, now);
+
+      const activeDurationMs = Math.max(0, now - ctx.startedAt.getTime() - ctx.idleMs);
+      const activeDurationMin = Math.round(activeDurationMs / 60000);
 
       return {
         content: [
           {
             type: "text" as const,
-            text: `Heartbeat recorded for session ${ctx.promptId}. Elapsed: ${elapsedMin}min.`,
+            text: `Heartbeat recorded. Active: ${activeDurationMin}min (idle excluded).`,
           },
         ],
       };

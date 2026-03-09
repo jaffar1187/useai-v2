@@ -7,6 +7,7 @@ import { computeSpaceScore } from "@useai/scoring";
 import { TaskTypeSchema, MilestoneCategorySchema, ComplexitySchema } from "@useai/types";
 import type { SessionEvaluation, Milestone, Session } from "@useai/types";
 import type { PromptContext } from "../prompt-context.js";
+import { touchActivity, getActiveDurationMs } from "../prompt-context.js";
 import { coerceJsonString } from "./coerce.js";
 
 let privateKey: Buffer | null = null;
@@ -84,7 +85,12 @@ export function registerEndTool(
       }
       const startedAt = ctx.startedAt;
       const endedAt = new Date();
-      const durationMs = endedAt.getTime() - startedAt.getTime();
+
+      // Final heartbeat: captures any work done since the last heartbeat and
+      // flushes any open idle gap if the user was away before calling useai_end.
+      touchActivity(ctx, endedAt.getTime());
+
+      const durationMs = getActiveDurationMs(startedAt, endedAt, ctx.lastActivityTime, ctx.idleMs);
       const sessionEval = evaluation as SessionEvaluation | undefined;
 
       const score = computeSpaceScore({
@@ -129,6 +135,8 @@ export function registerEndTool(
       await appendSession(fullSession);
       ctx.prevHash = hash;
       ctx.startedAt = null;
+      ctx.lastActivityTime = null;
+      ctx.idleMs = 0;
 
       return {
         content: [

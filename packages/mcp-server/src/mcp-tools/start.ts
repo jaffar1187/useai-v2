@@ -63,6 +63,8 @@ export function registerStartTool(
       ctx.promptId = `prompt_${randomUUID()}`;
       ctx.prevHash = "0".repeat(64);
       ctx.startedAt = new Date();
+      ctx.lastActivityTime = null;
+      ctx.idleMs = 0;
       ctx.client = client ?? "unknown";
       ctx.taskType = task_type ?? "other";
       ctx.title = title ?? null;
