@@ -17,21 +17,29 @@ export function registerHeartbeatTool(
     async () => {
       if (!ctx.startedAt) {
         return {
-          content: [{ type: "text" as const, text: "No active session. Call useai_start first." }],
+          content: [
+            {
+              type: "text" as const,
+              text: "No active session. Call useai_start first.",
+            },
+          ],
         };
       }
 
       const now = Date.now();
       touchActivity(ctx, now);
 
-      const activeDurationMs = Math.max(0, now - ctx.startedAt.getTime() - ctx.idleMs);
+      const activeDurationMs = Math.max(
+        0,
+        now - ctx.startedAt.getTime() - ctx.idleMs,
+      );
       const activeDurationMin = Math.round(activeDurationMs / 60000);
 
       return {
         content: [
           {
             type: "text" as const,
-            text: `Heartbeat recorded. Active: ${activeDurationMin}min (idle excluded).`,
+            text: `Heartbeat recorded. Active Duration: ${activeDurationMin}min.`,
           },
         ],
       };

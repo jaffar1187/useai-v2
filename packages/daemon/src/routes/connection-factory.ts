@@ -13,9 +13,12 @@ export async function createMcpConnection(): Promise<WebStandardStreamableHTTPSe
     //connectionId is only mcp-session-id header.
     onsessioninitialized: (connectionId) => {
       promptContext.connectionId = connectionId;
-      const pingInterval = setInterval(() => {
-        server.server.ping().catch(() => clearInterval(pingInterval));
-      }, 2 * 60 * 1000);
+      const pingInterval = setInterval(
+        () => {
+          server.server.ping().catch(() => clearInterval(pingInterval));
+        },
+        2 * 60 * 1000,
+      );
       connections.set(connectionId, {
         transport,
         mcpServer: server,
@@ -24,6 +27,7 @@ export async function createMcpConnection(): Promise<WebStandardStreamableHTTPSe
         pingInterval,
       });
     },
+    // For /DELETE endpoint, planned for future.
     onsessionclosed: (connectionId) => {
       const conn = connections.get(connectionId);
       if (conn) clearInterval(conn.pingInterval);
