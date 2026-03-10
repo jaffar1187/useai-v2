@@ -3,10 +3,7 @@ import { Hono } from "hono";
 import { connections } from "./connection-store.js";
 import { createMcpConnection } from "./connection-factory.js";
 
-export {
-  sweepStaleConnections,
-  getConnectionCount,
-} from "./connection-store.js";
+export { getConnectionCount } from "./connection-store.js";
 
 export const mcpRoutes = new Hono();
 
@@ -21,6 +18,8 @@ mcpRoutes.all("/", async (c) => {
     if (c.req.method === "GET") {
       const incoming = (c.env as { incoming?: IncomingMessage }).incoming;
       incoming?.on("close", () => {
+        const c = connections.get(connectionId);
+        if (c) clearInterval(c.pingInterval);
         connections.delete(connectionId);
       });
     }
@@ -28,7 +27,7 @@ mcpRoutes.all("/", async (c) => {
     return conn.transport.handleRequest(c.req.raw);
   }
 
-  if (c.req.method === "DELETE" && connectionId) {
+  if (connectionId && !connections.has(connectionId)) {
     return c.json({ error: "Session not found" }, 404);
   }
 
